@@ -3,38 +3,51 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import kotlin.system.measureTimeMillis
 
 fun main() {
-
-    // "hello2.txt" adında bir dosya oluşturuluyor (varsa üzerine yazılır)
     val file = File("hello2.txt")
 
-    // FileOutputStream kullanarak dosyaya veri yazıyoruz
-    // `use` bloğu, otomatik olarak çıkışı kapatır (kaynakları serbest bırakır)
-    FileOutputStream(file).use { outputStream ->
+// Yorum satırına alınmış yazma işlemi, dosyaya büyük miktarda veri yazacaktı
+    // Dosyaya 10 milyon satır yazma işlemi için kod burada yer alıyordu
+    //
+    // FileOutputStream(file).use { outputStream ->
+    //     repeat(10_000_000) {
+    //         outputStream.write("$it\n".encodeToByteArray())
+    //     }
+    // }
 
-        // 1 milyon kez tekrarlayarak her sayıyı dosyaya yazıyoruz
-        repeat(1_000_000) {
+    // İkinci kısımda dosya okuma işlemi yapılmaktadır
 
-            // Her bir sayıyı yeni bir satırda yazmak için `encodeToByteArray` kullanıyoruz
-            // "$it\n" ifadesi, sayıyı ve sonrasında bir satır başını içerir
-            outputStream.write("$it\n".encodeToByteArray())
+
+    // İlk okuma işlemi için byte array ile dosyayı okuma süresi ölçülüyor
+    val stringBuilder = StringBuilder()  // Dosya içeriğini bir StringBuilder'a yazacağız
+    val time1 = measureTimeMillis {  // Bu blokta geçen süre ölçülür
+        FileInputStream(file).use {
+            it.readBytes()  // Dosyadaki tüm baytları okuyoruz
         }
     }
 
-// FileInputStream kullanarak dosyayı okuma işlemi yapılmış
-//    val stringBuilder = StringBuilder()
-//    FileInputStream(file).use {
-//        var byte = it.read() // Dosyadaki ilk baytı okuyoruz
-    // Dosyanın sonuna kadar okuma işlemi devam eder
-//        while(byte != -1) {
-    // Okunan baytı karaktere çevirip StringBuilder'a ekliyoruz
-//            stringBuilder.append(byte.toChar())
-//            byte = it.read() // Sonraki baytı okuyoruz
-//        }
-//    }
-//    // Dosyanın tamamı okunduktan sonra içeriği yazdırıyoruz
-//    println(stringBuilder.toString())
+    // İkinci okuma işlemi için bufferedReader ile dosyayı okuma süresi ölçülüyor
+    val stringBuilder2 = StringBuilder()  // Alternatif okuma sonucunu buraya yazacağız
+    val time2 = measureTimeMillis {  // Bu blokta geçen süre ölçülür
+        FileInputStream(file).bufferedReader().use { reader ->  // BufferedReader ile daha verimli okuma
+            var byte = reader.read()  // İlk byte'ı okuyoruz
+            // Dosya sonuna kadar okunana kadar devam eder
+            while(byte != -1) {
+                stringBuilder.append(byte.toChar())  // Okunan byte'ı karaktere çevirip ekliyoruz
+                byte = reader.read()  // Sonraki byte'ı okuyoruz
+            }
+        }
+    }
+
+    // İlk ve ikinci okuma işlemlerinin sürelerini yazdırıyoruz
+    println("Time1: $time1 ms.")  // İlk okuma süresi
+    println("Time2: $time2 ms.")  // İkinci okuma süresi
+
+    // Aşağıdaki kısımda, okunan içeriği yazdırmak için bir çözüm olabilir, ancak şu an yorum satırında
+    //
+    // println(stringBuilder.toString())  // StringBuilder içeriğini yazdırıyoruz
 }
 
 // Bu fonksiyon bir klasördeki dosyaları ve alt klasörleri özyinelemeli (rekürsif) olarak listeler
