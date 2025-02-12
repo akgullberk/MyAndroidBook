@@ -12,7 +12,9 @@ Jetpack Compose -> MeditationUI
 
 Jetpack Compose -> ComposeTimer
 
-[Screen_recording_20250212_102245.webm](https://github.com/user-attachments/assets/2090ac39-135d-4bac-b0d9-2d1f3b66fee8)
+https://github.com/user-attachments/assets/bee9fb8a-bf89-472c-ba2a-57f9fe694e0c
+
+
 
 
 
